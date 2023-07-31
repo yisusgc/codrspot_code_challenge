@@ -6,6 +6,7 @@ use App\Services\DriversAssignService;
 use App\Services\ReadFileService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use Hungarian\Hungarian;
 
 class DriverToShipmentAssignment extends Command
 {
@@ -62,8 +63,23 @@ class DriverToShipmentAssignment extends Command
         }
 
         $costs = $this->driversAssignService->calculateSuitableScores($addressesRows, $namesRows);
+        $resultsIndexes = $this->driversAssignService->solveDriverAssignment($costs);
 
-        Log::info(json_encode($costs));
+        $results = $this->driversAssignService
+            ->translateAssignments(
+                $costs,
+                $resultsIndexes,
+                $addressesRows,
+                $namesRows
+            );
+
+        foreach ($results as $result) {
+            $driver = $result['driver'];
+            $address = $result['address'];
+            $ss = $result['ss'];
+
+            $this->info("Driver \"$driver\" should take \"$address\" with a SS of $ss");
+        }
 
         return 0;
     }
