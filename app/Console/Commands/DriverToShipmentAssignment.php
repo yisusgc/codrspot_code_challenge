@@ -50,7 +50,10 @@ class DriverToShipmentAssignment extends Command
         $addressesFileName = $this->argument('addressesFile');
         $namesFileName = $this->argument('driversFile');
 
+        // Extract rows for addresses file
         $addressesRows = $this->readFileService->extractFileRows($addressesFileName, true);
+
+        // Extract rows for names file
         $namesRows = $this->readFileService->extractFileRows($namesFileName, true);
 
         $countAddresses = count($addressesRows);
@@ -62,8 +65,14 @@ class DriverToShipmentAssignment extends Command
             return;
         }
 
+        // Calculate SS for addresses and driver's names
         $costs = $this->driversAssignService->calculateSuitableScores($addressesRows, $namesRows);
+
+        $this->info("Costs Matrix: " . json_encode($costs));
+
         $resultsIndexes = $this->driversAssignService->solveDriverAssignment($costs);
+
+        $this->info("Solution indexes: " . json_encode($resultsIndexes));
 
         $results = $this->driversAssignService
             ->translateAssignments(
@@ -72,6 +81,7 @@ class DriverToShipmentAssignment extends Command
                 $addressesRows,
                 $namesRows
             );
+
 
         foreach ($results as $result) {
             $driver = $result['driver'];
