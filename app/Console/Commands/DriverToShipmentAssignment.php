@@ -67,12 +67,8 @@ class DriverToShipmentAssignment extends Command
 
         // Calculate SS for addresses and driver's names
         $costs = $this->driversAssignService->calculateSuitableScores($addressesRows, $namesRows);
-
-        $this->info("Costs Matrix: " . json_encode($costs));
-
+        // Solve assignment
         $resultsIndexes = $this->driversAssignService->solveDriverAssignment($costs);
-
-        $this->info("Solution indexes: " . json_encode($resultsIndexes));
 
         $results = $this->driversAssignService
             ->translateAssignments(
@@ -82,6 +78,16 @@ class DriverToShipmentAssignment extends Command
                 $namesRows
             );
 
+        $this->info("");
+        $this->info("Addresses: " . json_encode($addressesRows));
+        $this->info("");
+        $this->info("Drivers: " . json_encode($namesRows));
+        $this->info("");
+        $this->info("Costs Matrix: " . json_encode($costs));
+        $this->info("");
+        $this->info("Solution indexes: " . json_encode($resultsIndexes));
+        $this->info("");
+        $this->info("");
 
         foreach ($results as $result) {
             $driver = $result['driver'];
